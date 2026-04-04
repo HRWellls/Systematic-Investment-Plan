@@ -1438,17 +1438,7 @@
 
       const fundsByCategory = state.categories.map(category => ({
         category,
-        funds: state.funds
-          .filter(f => f.categoryId === category.id)
-          .sort((a, b) => {
-            const getTime = (fund) => {
-              const date = calculateFundCompletionDate(fund);
-              if (!date) return Infinity;        // 无计划 → 最后
-              if (date === '已完成') return 0;    // 已完成 → 最前
-              return new Date(date).getTime();  // 正常日期
-            };
-            return getTime(a) - getTime(b);
-          })
+        funds: state.funds.filter(f => f.categoryId === category.id)
       })).filter(group => group.funds.length > 0 || isAddingFund);
 
       window.toggleCategory = (categoryId) => {
@@ -1481,6 +1471,22 @@
               showToast('持仓金额已按计划累加', 'success');
       };
 
+      window.sortFundsByCompletionDate = () => {
+              state.funds.sort((a, b) => {
+                const getTime = (fund) => {
+                  const date = calculateFundCompletionDate(fund);
+                  if (!date) return Infinity;        // 无计划 → 最后
+                  if (date === '已完成') return 0;    // 已完成 → 最前
+                  return new Date(date).getTime();  // 正常日期
+                };
+                return getTime(a) - getTime(b);
+              });
+              
+              saveData(state);
+              render();
+              showToast('已按预计完成日期排序', 'success');
+      };
+
       window.openPlanModal = (fundId) => {
         selectedFundId = fundId;
         planModalOpen = true;
@@ -1496,6 +1502,9 @@
             </h2>
             ${!isAddingFund ? `
               <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-icon" onclick="sortFundsByCompletionDate()" title="按预计完成日期排序">
+                  <span class="icon icon-calendar"></span>
+                </button>
                 <button class="btn-icon" onclick="refreshAllFunds()" title="按计划更新当前金额">
                   <span class="icon icon-refresh"></span>
                 </button>
