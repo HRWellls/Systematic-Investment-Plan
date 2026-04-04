@@ -893,10 +893,12 @@
     }
 
     function calculateFundCompletionDate(fund) {
-      if (fund.investmentAmount <= 0) return null;
-      
+      // 首先检查是否已完成（持仓金额 >= 目标金额）
       const remainingAmount = fund.targetAmount - fund.currentAmount;
       if (remainingAmount <= 0) return '已完成';
+      
+      // 如果没有定投计划，显示暂无定投计划
+      if (fund.investmentAmount <= 0) return null;
       
       const monthlyInvestment = fund.investmentAmount * frequencyMultiplier[fund.frequency];
       if (monthlyInvestment <= 0) return null;
