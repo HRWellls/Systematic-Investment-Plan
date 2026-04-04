@@ -969,6 +969,7 @@
     let expandedCategory = null;
     let planModalOpen = false;
     let selectedFundId = null;
+    let isCurrentAmountDescending = true;
 
     // ===== 操作函数 =====
     function addCategory(name, color) {
@@ -1487,6 +1488,30 @@
               showToast('已按预计完成日期排序', 'success');
       };
 
+      window.sortFundsByCurrentAmount = () => {
+              // 获取当前排序方向
+              const currentOrder = isCurrentAmountDescending ? '降序' : '升序';
+              
+              state.funds.sort((a, b) => {
+                if (isCurrentAmountDescending) {
+                  // 降序排序（从大到小）
+                  return b.currentAmount - a.currentAmount;
+                } else {
+                  // 升序排序（从小到大）
+                  return a.currentAmount - b.currentAmount;
+                }
+              });
+              
+              // 切换排序方向
+              isCurrentAmountDescending = !isCurrentAmountDescending;
+              
+              saveData(state);
+              render();
+              
+              // 显示相应的提示信息
+              showToast(`已按持仓金额${currentOrder}排序`, 'success');
+      };
+
       window.openPlanModal = (fundId) => {
         selectedFundId = fundId;
         planModalOpen = true;
@@ -1502,6 +1527,9 @@
             </h2>
             ${!isAddingFund ? `
               <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-icon" onclick="sortFundsByCurrentAmount()" title="${isCurrentAmountDescending ? '按持仓金额降序排序' : '按持仓金额升序排序'}">
+                  <span class="icon icon-wallet"></span>
+                </button>
                 <button class="btn-icon" onclick="sortFundsByCompletionDate()" title="按预计完成日期排序">
                   <span class="icon icon-calendar"></span>
                 </button>
