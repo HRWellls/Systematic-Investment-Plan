@@ -1349,6 +1349,18 @@
                 const totalCurrentAmount = categoryFunds.reduce((sum, f) => sum + f.currentAmount, 0);
                 const fundCount = categoryFunds.length;
                 
+                // 计算最近完成日期
+                let nearestCompletionDate = null;
+                categoryFunds.forEach(fund => {
+                  const completionDate = calculateFundCompletionDate(fund);
+                  if (completionDate && completionDate !== '已完成') {
+                    const dateObj = new Date(completionDate);
+                    if (!nearestCompletionDate || dateObj < new Date(nearestCompletionDate)) {
+                      nearestCompletionDate = completionDate;
+                    }
+                  }
+                });
+                
                 if (editingCategoryId === category.id) {
                   return `
                     <div class="category-item">
@@ -1382,6 +1394,11 @@
                           <div style="font-size: 0.75rem; color: var(--text-secondary);">
                             当前: ${formatCurrency(totalCurrentAmount)}
                           </div>
+                          ${nearestCompletionDate ? `
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                              下个完成日: ${nearestCompletionDate}
+                            </div>
+                          ` : ''}
                           ${totalTargetAmount > 0 ? `
                             <div style="margin-top: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
                               <div style="flex: 1; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden;">
@@ -1508,7 +1525,7 @@
                 const getTime = (fund) => {
                   const date = calculateFundCompletionDate(fund);
                   if (!date) return Infinity;        // 无计划 → 最后
-                  if (date === '已完成') return 0;    // 已完成 → 最前
+                  if (date === '已完成') return Infinity;    // 已完成 → 最后
                   return new Date(date).getTime();  // 正常日期
                 };
                 return getTime(a) - getTime(b);
