@@ -1343,6 +1343,12 @@
             ${state.categories.length === 0 ? 
               '<div class="empty-state">暂无分类，点击右上角添加</div>' :
               state.categories.map(category => {
+                // 计算该分类下的基金总金额
+                const categoryFunds = state.funds.filter(f => f.categoryId === category.id);
+                const totalTargetAmount = categoryFunds.reduce((sum, f) => sum + f.targetAmount, 0);
+                const totalCurrentAmount = categoryFunds.reduce((sum, f) => sum + f.currentAmount, 0);
+                const fundCount = categoryFunds.length;
+                
                 if (editingCategoryId === category.id) {
                   return `
                     <div class="category-item">
@@ -1362,9 +1368,32 @@
                 }
                 return `
                   <div class="category-item">
-                    <div class="category-info">
+                    <div class="category-info" style="flex: 1;">
                       <span class="category-color" style="background-color: ${category.color}"></span>
-                      <span class="category-name">${category.name}</span>
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                          <span class="category-name">${category.name}</span>
+                          <span style="font-size: 0.75rem; color: var(--text-secondary)">(${fundCount}只)</span>
+                        </div>
+                        ${fundCount > 0 ? `
+                          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                            目标: ${formatCurrency(totalTargetAmount)}
+                          </div>
+                          <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                            当前: ${formatCurrency(totalCurrentAmount)}
+                          </div>
+                          ${totalTargetAmount > 0 ? `
+                            <div style="margin-top: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                              <div style="flex: 1; height: 4px; background: var(--border-color); border-radius: 2px; overflow: hidden;">
+                                <div style="height: 100%; width: ${Math.min((totalCurrentAmount / totalTargetAmount) * 100, 100)}%; background: ${category.color}; border-radius: 2px; transition: width 0.3s ease;"></div>
+                              </div>
+                              <div style="font-size: 0.625rem; color: var(--text-secondary); min-width: 30px; text-align: right;">
+                                ${Math.round((totalCurrentAmount / totalTargetAmount) * 100)}%
+                              </div>
+                            </div>
+                          ` : ''}
+                        ` : ''}
+                      </div>
                     </div>
                     <div class="category-actions">
                       <button class="btn-icon" onclick="startEditCategory('${category.id}')" title="编辑">
