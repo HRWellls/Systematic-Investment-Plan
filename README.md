@@ -49,7 +49,30 @@
 - 纯前端实现，无需后端服务器
 - 使用 LocalStorage 本地存储数据
 - 响应式设计，支持移动端访问
-- 单文件 HTML，可直接在浏览器中打开使用
+- 模块化结构，代码组织清晰
+
+## 项目结构
+
+```
+├── 定投助手.html        # 合成版HTML文件
+├── index.html          # 主HTML文件
+├── css/
+│   └── styles.css      # 样式文件
+├── js/
+│   ├── utils.js        # 工具函数和常量
+│   ├── storage.js      # 本地存储管理
+│   ├── operations.js   # 业务逻辑和状态管理
+│   └── render.js       # 渲染函数
+├── README.md           # 项目说明
+└── .gitignore
+```
+
+### 模块说明
+
+- **utils.js**: 包含工具函数、常量定义和计算逻辑
+- **storage.js**: 处理本地存储的读写操作
+- **operations.js**: 实现核心业务逻辑和状态管理
+- **render.js**: 负责页面渲染和用户交互
 
 ## 浏览器兼容性
 
