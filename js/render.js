@@ -144,6 +144,25 @@ function renderCategoryManager() {
             const totalCurrentAmount = categoryFunds.reduce((sum, f) => sum + f.currentAmount, 0);
             const fundCount = categoryFunds.length;
             
+            // 计算该分类下的每日定投总额
+            let dailyInvestmentTotal = 0;
+            categoryFunds.forEach(fund => {
+              switch(fund.frequency) {
+                case 'daily':
+                  dailyInvestmentTotal += fund.investmentAmount;
+                  break;
+                case 'weekly':
+                  dailyInvestmentTotal += fund.investmentAmount / 7;
+                  break;
+                case 'biweekly':
+                  dailyInvestmentTotal += fund.investmentAmount / 14;
+                  break;
+                case 'monthly':
+                  dailyInvestmentTotal += fund.investmentAmount / 30.44;
+                  break;
+              }
+            });
+            
             // 计算最近完成日期
             let nearestCompletionDate = null;
             categoryFunds.forEach(fund => {
@@ -188,6 +207,9 @@ function renderCategoryManager() {
                       </div>
                       <div style="font-size: 0.75rem; color: var(--text-secondary);">
                         当前: ${formatCurrency(totalCurrentAmount)}
+                      </div>
+                      <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                        每日定投总额: ${formatCurrency(dailyInvestmentTotal)}
                       </div>
                       ${nearestCompletionDate ? `
                         <div style="font-size: 0.75rem; color: var(--text-secondary);">
