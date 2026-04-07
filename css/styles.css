@@ -817,6 +817,55 @@ body {
   background: var(--danger-color);
 }
 
+/* 分类持仓占比图表 */
+.category-pie-chart {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.chart-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.pie-chart {
+  flex-shrink: 0;
+}
+
+.chart-legend {
+  flex: 1;
+  min-width: 200px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-name {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.legend-percentage {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
 /* 导入确认模态框 */
 .import-preview {
   max-height: 300px;

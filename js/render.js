@@ -243,6 +243,9 @@ function renderCategoryManager() {
         }
       </div>
 
+      <!-- 分类持仓占比图表 -->
+      ${renderCategoryPieChart()}
+
       <!-- 数据管理 -->
       <div class="data-manager">
         <h2 class="section-title">
@@ -652,10 +655,95 @@ function render() {
   `;
 }
 
+function renderCategoryPieChart() {
+  // 计算每个分类的当前持仓金额
+  const categoryAmounts = state.categories.map(category => {
+    const categoryFunds = state.funds.filter(f => f.categoryId === category.id);
+    const totalCurrentAmount = categoryFunds.reduce((sum, f) => sum + f.currentAmount, 0);
+    return {
+      category,
+      amount: totalCurrentAmount
+    };
+  }).filter(item => item.amount > 0);
+
+  // 计算总金额
+  const totalAmount = categoryAmounts.reduce((sum, item) => sum + item.amount, 0);
+
+  if (totalAmount === 0) {
+    return `
+      <div class="category-pie-chart">
+        <h2 class="section-title">
+          <span class="icon icon-pie-chart"></span>
+          分类持仓占比
+        </h2>
+        <div class="empty-state">暂无持仓数据</div>
+      </div>
+    `;
+  }
+
+  // 计算每个分类的占比和角度
+  let currentAngle = 0;
+  const chartItems = categoryAmounts.map(item => {
+    const percentage = (item.amount / totalAmount) * 100;
+    const angle = (percentage / 100) * 360;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + angle;
+    currentAngle = endAngle;
+
+    // 计算路径
+    const radius = 60;
+    const centerX = 80;
+    const centerY = 80;
+    const startX = centerX + radius * Math.cos((startAngle - 90) * Math.PI / 180);
+    const startY = centerY + radius * Math.sin((startAngle - 90) * Math.PI / 180);
+    const endX = centerX + radius * Math.cos((endAngle - 90) * Math.PI / 180);
+    const endY = centerY + radius * Math.sin((endAngle - 90) * Math.PI / 180);
+    const largeArcFlag = angle > 180 ? 1 : 0;
+
+    const path = `M ${centerX} ${centerY} L ${startX} ${startY} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
+
+    return {
+      category: item.category,
+      amount: item.amount,
+      percentage: percentage,
+      path: path
+    };
+  });
+
+  return `
+    <div class="category-pie-chart">
+      <h2 class="section-title">
+        <span class="icon icon-pie-chart"></span>
+        分类持仓占比
+      </h2>
+      <div class="chart-container">
+        <svg width="160" height="160" class="pie-chart">
+          ${chartItems.map(item => `
+            <path d="${item.path}" fill="${item.category.color}" />
+          `).join('')}
+          <circle cx="80" cy="80" r="40" fill="white" />
+          <text x="80" y="75" text-anchor="middle" font-size="14" font-weight="bold">总持仓</text>
+          <text x="80" y="95" text-anchor="middle" font-size="12">${formatCurrency(totalAmount)}</text>
+        </svg>
+        <div class="chart-legend">
+          ${chartItems.map(item => `
+            <div class="legend-item">
+              <span class="legend-color" style="background-color: ${item.category.color}"></span>
+              <span class="legend-name">${item.category.name}</span>
+              <span class="legend-percentage">${item.percentage.toFixed(1)}%</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // 导出函数
 window.renderStatsPanel = renderStatsPanel;
 window.renderCategoryManager = renderCategoryManager;
 window.renderFundList = renderFundList;
 window.renderFundForm = renderFundForm;
 window.renderPlanModal = renderPlanModal;
+window.renderCategoryPieChart = renderCategoryPieChart;
 window.render = render;
