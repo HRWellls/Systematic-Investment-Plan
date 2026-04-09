@@ -1,3 +1,6 @@
+// 全局变量初始化
+window.isBatchEditMode = false;
+
 // 渲染函数
 function renderStatsPanel() {
   const totalTargetAmount = state.funds.reduce((sum, f) => sum + f.targetAmount, 0);
@@ -386,6 +389,38 @@ function renderFundList() {
     render();
   };
 
+  window.toggleBatchEditMode = () => {
+    window.isBatchEditMode = !window.isBatchEditMode;
+    render();
+  };
+
+  window.toggleSelectAllFunds = () => {
+    const checkboxes = document.querySelectorAll('.fund-checkbox');
+    const selectAllCheckbox = document.getElementById('selectAllFunds');
+    checkboxes.forEach(checkbox => {
+      checkbox.checked = selectAllCheckbox.checked;
+    });
+  };
+
+  window.batchDeleteFunds = () => {
+    const selectedCheckboxes = document.querySelectorAll('.fund-checkbox:checked');
+    if (selectedCheckboxes.length === 0) {
+      showToast('请先选择要删除的基金', 'warning');
+      return;
+    }
+    
+    if (!confirm(`确定要删除选中的 ${selectedCheckboxes.length} 只基金吗？`)) return;
+    
+    selectedCheckboxes.forEach(checkbox => {
+      const fundId = checkbox.dataset.fundId;
+      deleteFund(fundId);
+    });
+    
+    window.isBatchEditMode = false;
+    render();
+    showToast(`已删除 ${selectedCheckboxes.length} 只基金`, 'success');
+  };
+
   return `
     <div class="fund-list">
       <div class="section-header">
@@ -394,7 +429,22 @@ function renderFundList() {
           基金列表
         </h2>
         ${!isAddingFund ? `
-          <div style="display: flex; gap: 0.5rem;">
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            ${window.isBatchEditMode ? `
+              <div style="display: flex; align-items: center; gap: 0.25rem;">
+                <input type="checkbox" id="selectAllFunds" onclick="toggleSelectAllFunds()" title="全选">
+                <button class="btn-icon danger" onclick="batchDeleteFunds()" title="批量删除">
+                  <span class="icon icon-trash"></span>
+                </button>
+                <button class="btn-icon" onclick="toggleBatchEditMode()" title="取消批量删除">
+                  <span class="icon icon-x"></span>
+                </button>
+              </div>
+            ` : `
+              <button class="btn-icon" onclick="toggleBatchEditMode()" title="批量删除">
+                <span class="icon icon-trash"></span>
+              </button>
+            `}
             <button class="btn-icon" onclick="sortFundsByCurrentAmount()" title="${isCurrentAmountDescending ? '按持仓金额降序排序' : '按持仓金额升序排序'}">
               <span class="icon icon-wallet"></span>
             </button>
@@ -431,7 +481,10 @@ function renderFundList() {
                     return `
                       <div class="fund-item">
                         <div class="fund-header">
-                          <div class="fund-info">
+                          <div class="fund-info" style="display: flex; align-items: center; gap: 0.5rem;">
+                            ${window.isBatchEditMode ? `
+                              <input type="checkbox" class="fund-checkbox" data-fund-id="${fund.id}" style="margin: 0;">
+                            ` : ''}
                             <span class="fund-name">${fund.name}</span>
                             <span class="fund-code">${fund.code}</span>
                           </div>
