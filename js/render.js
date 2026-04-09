@@ -630,13 +630,31 @@ function renderPlanModal() {
   `;
 }
 
+// 主题切换功能
+function toggleTheme() {
+  const isDarkMode = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  render();
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+}
+
 function render() {
+  const isDarkMode = document.body.classList.contains('dark-mode');
   document.getElementById('root').innerHTML = `
     <div class="app">
       <header class="app-header">
         <div class="header-content">
           <span class="icon icon-trending-up icon-xl"></span>
           <h1>定投统计助手</h1>
+          <button class="btn-icon" onclick="toggleTheme()" title="切换主题">
+            <span class="icon ${isDarkMode ? 'icon-sun' : 'icon-moon'}"></span>
+          </button>
         </div>
       </header>
       <main class="app-main">
@@ -747,3 +765,5 @@ window.renderFundForm = renderFundForm;
 window.renderPlanModal = renderPlanModal;
 window.renderCategoryPieChart = renderCategoryPieChart;
 window.render = render;
+window.toggleTheme = toggleTheme;
+window.loadTheme = loadTheme;
