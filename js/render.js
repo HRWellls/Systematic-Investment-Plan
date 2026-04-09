@@ -798,11 +798,13 @@ function renderCategoryPieChart() {
         </svg>
         <div class="chart-legend">
           ${chartItems.map(item => `
-            <div class="legend-item" style="display: flex; align-items: center;">
+            <div class="legend-item" style="display: flex; align-items: center; width: 100%;">
               <span class="legend-color" style="background-color: ${item.category.color}"></span>
               <span class="legend-name">${item.category.name}</span>
-              <span style="margin-left: 0.5rem;">${formatCurrency(item.amount)}</span>
-              <span style="margin-left: auto; color: var(--text-secondary);">${item.percentage.toFixed(1)}%</span>
+              <div style="flex: 1; text-align: center;">
+                <span style="display: inline-block; text-align: left;">${formatCurrency(item.amount)}</span>
+              </div>
+              <span style="color: var(--text-secondary);">${item.percentage.toFixed(1)}%</span>
             </div>
           `).join('')}
         </div>
