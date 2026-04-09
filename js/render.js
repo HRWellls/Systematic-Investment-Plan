@@ -466,12 +466,15 @@ function renderFundList() {
           '<div class="empty-state">暂无基金，点击右上角添加</div>' :
           fundsByCategory.map(({ category, funds: categoryFunds }) => `
             <div class="fund-category-section">
-              <div class="category-header" onclick="toggleCategory('${category.id}')">
+              <div class="category-header" onclick="toggleCategory('${category.id}')" style="display: flex; align-items: center; cursor: pointer;">
                 <span class="category-dot" style="background-color: ${category.color}"></span>
                 <span class="category-title">${category.name}</span>
                 <span class="fund-count">(${categoryFunds.length})</span>
+                <span style="margin-left: auto; transition: transform 0.3s ease;">
+                  <span class="icon ${expandedCategory === category.id ? 'icon-chevron-down' : 'icon-chevron-right'}"></span>
+                </span>
               </div>
-              ${(expandedCategory === category.id || expandedCategory === null) ? `
+              ${expandedCategory === category.id ? `
                 <div class="fund-items">
                   ${categoryFunds.map(fund => {
                     if (editingFundId === fund.id) {
