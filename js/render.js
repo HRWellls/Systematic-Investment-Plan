@@ -518,6 +518,17 @@ function renderFundList() {
                             <span class="detail-value">${formatCurrency(fund.currentAmount)}</span>
                           </div>
                           <div class="detail-item">
+                            <span class="detail-label">建仓金额</span>
+                            <span class="detail-value">${formatCurrency(fund.initialAmount || 0)}</span>
+                          </div>
+                          <div class="detail-item">
+                            <span class="detail-label">建仓日期</span>
+                            <span class="detail-value">
+                              <span class="icon icon-calendar icon-sm"></span>
+                              ${fund.initialDate || '未设置'}
+                            </span>
+                          </div>
+                          <div class="detail-item">
                             <span class="detail-label">定投金额</span>
                             <span class="detail-value">${formatCurrency(fund.investmentAmount)} / ${frequencyLabels[fund.frequency]}</span>
                           </div>
@@ -557,10 +568,10 @@ function renderFundForm(fund = null) {
     name: '',
     code: '',
     targetAmount: '',
-    currentAmount: '',
+    initialAmount: '',
+    initialDate: new Date().toISOString().split('T')[0],
     investmentAmount: '',
     frequency: 'monthly',
-    startDate: new Date().toISOString().split('T')[0],
     notes: ''
   };
 
@@ -570,13 +581,20 @@ function renderFundForm(fund = null) {
       name: document.getElementById(`${formId}Name`).value.trim(),
       code: document.getElementById(`${formId}Code`).value.trim(),
       targetAmount: Number(document.getElementById(`${formId}Target`).value) || 0,
-      currentAmount: Number(document.getElementById(`${formId}Current`).value) || 0,
+      initialAmount: Number(document.getElementById(`${formId}Initial`).value) || 0,
+      initialDate: document.getElementById(`${formId}InitialDate`).value,
       investmentAmount: Number(document.getElementById(`${formId}Investment`).value) || 0,
       frequency: document.getElementById(`${formId}Frequency`).value,
-      startDate: document.getElementById(`${formId}StartDate`).value,
       notes: document.getElementById(`${formId}Notes`).value.trim(),
       lastCalcDate: new Date().toISOString().split('T')[0]
     };
+    
+    // 计算当前持仓金额
+    const fundObject = {
+      ...data,
+      currentAmount: 0 // 临时值，后续会通过calculateSimulatedCurrentAmount计算
+    };
+    data.currentAmount = calculateSimulatedCurrentAmount(fundObject);
 
     if (!data.name || !data.categoryId) return;
 
@@ -611,16 +629,19 @@ function renderFundForm(fund = null) {
       </div>
       <div class="form-row">
         <input type="number" id="${formId}Target" placeholder="目标金额" class="input" value="${fundData.targetAmount}">
-        <input type="number" id="${formId}Current" placeholder="当前金额" class="input" value="${fundData.currentAmount}">
+        <input type="number" id="${formId}Initial" placeholder="建仓金额" class="input" value="${fundData.initialAmount}">
         <input type="number" id="${formId}Investment" placeholder="定投金额" class="input" value="${fundData.investmentAmount}">
       </div>
-      <div class="form-row">
-        <select id="${formId}Frequency" class="input">
+      <div class="form-row" style="gap: 1rem;">
+        <select id="${formId}Frequency" class="input" style="width: 300px;">
           ${Object.entries(frequencyLabels).map(([value, label]) => `
             <option value="${value}" ${fundData.frequency === value ? 'selected' : ''}>${label}</option>
           `).join('')}
         </select>
-        <input type="date" id="${formId}StartDate" class="input" value="${fundData.startDate}">
+        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+          <span style="font-size: 0.875rem; color: var(--text-secondary); white-space: nowrap;">建仓日期：</span>
+          <input type="date" id="${formId}InitialDate" class="input" style="flex: 1; min-width: 150px;" value="${fundData.initialDate}">
+        </div>
       </div>
       <textarea id="${formId}Notes" placeholder="备注" class="input textarea" rows="2">${fundData.notes}</textarea>
       <div class="form-actions">

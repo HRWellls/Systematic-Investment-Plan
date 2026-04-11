@@ -41,8 +41,8 @@ function deleteCategory(id) {
 function addFund(fundData) {
   const newFund = {
     ...fundData,
-    currentAmount: Number(fundData.currentAmount) || 0,
     targetAmount: Number(fundData.targetAmount) || 0,
+    initialAmount: Number(fundData.initialAmount) || 0,
     investmentAmount: Number(fundData.investmentAmount) || 0,
     id: generateId(),
     createdAt: new Date().toISOString()

@@ -48,24 +48,41 @@ function calculateFundCompletionDate(fund) {
   return completionDate.toLocaleDateString('zh-CN');
 }
 
+function countWorkdays(startDate, endDate) {
+  let count = 0;
+  const currentDate = new Date(startDate);
+  const end = new Date(endDate);
+  
+  while (currentDate <= end) {
+    const dayOfWeek = currentDate.getDay();
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // 周一到周五
+      count++;
+    }
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return count;
+}
+
 function calculateSimulatedCurrentAmount(fund) {
-      if (fund.investmentAmount <= 0) return fund.currentAmount; // 如果没有设置定投额，保持原金额不变，绝不清零
-
-      // 使用上次计算/更新的日期，如果没有则退回使用 startDate
-      const anchorDateStr = fund.lastCalcDate || fund.startDate;
-      const anchorDate = new Date(anchorDateStr);
-      const today = new Date();
-      
-      const daysDiff = Math.floor((today.getTime() - anchorDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff <= 0) return fund.currentAmount; // 时间没推进，保持原金额
-
-      const monthsDiff = daysDiff / 30.44;
-      const monthlyInvestment = fund.investmentAmount * frequencyMultiplier[fund.frequency];
-      const increment = monthlyInvestment * monthsDiff;
-      
-      // 返回：原有金额 + 这段时间的新增定投
-      return Math.round(fund.currentAmount + increment);
+  // 使用建仓日期作为计算起点
+  const initialDateStr = fund.initialDate;
+  if (!initialDateStr) return fund.currentAmount || 0;
+  
+  const initialDate = new Date(initialDateStr);
+  const today = new Date();
+  
+  // 计算工作日数量
+  const workdays = countWorkdays(initialDate, today);
+  
+  // 计算建仓金额和定投金额
+  const initialAmount = fund.initialAmount || 0;
+  const investmentAmount = fund.investmentAmount || 0;
+  
+  // 计算当前持仓金额：建仓金额 + 工作日数量 * 定投金额
+  const currentAmount = initialAmount + (workdays * investmentAmount);
+  
+  return Math.round(currentAmount);
 }
 
 // 导出常量和函数
