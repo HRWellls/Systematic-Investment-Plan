@@ -333,20 +333,7 @@ function renderFundList() {
     render();
   };
   
-  window.refreshAllFunds = () => {
-          if (!confirm('确定要按定投计划更新金额吗？\n系统将计算自上次更新以来的定投增量，并累加到当前持仓中。')) return;
 
-          const todayStr = new Date().toISOString().split('T')[0];
-          state.funds = state.funds.map(fund => ({
-            ...fund,
-            currentAmount: calculateSimulatedCurrentAmount(fund),
-            lastCalcDate: todayStr // 更新完成后，把今天作为下一次计算增量的基准时间
-          }));
-          
-          saveData(state);
-          render();
-          showToast('持仓金额已按计划累加', 'success');
-  };
 
   window.sortFundsByCompletionDate = () => {
           state.funds.sort((a, b) => {
@@ -456,9 +443,6 @@ function renderFundList() {
             <button class="btn-icon" onclick="sortFundsByCompletionDate()" title="按预计完成日期排序">
               <span class="icon icon-calendar"></span>
             </button>
-            <button class="btn-icon" onclick="refreshAllFunds()" title="按计划更新当前金额">
-              <span class="icon icon-refresh"></span>
-            </button>
             <button class="btn-icon" onclick="startAddFund()" title="添加基金">
               <span class="icon icon-plus"></span>
             </button>
@@ -514,7 +498,7 @@ function renderFundList() {
                             <span class="detail-value">${formatCurrency(fund.targetAmount)}</span>
                           </div>
                           <div class="detail-item">
-                            <span class="detail-label">当前金额</span>
+                            <span class="detail-label">持仓金额</span>
                             <span class="detail-value">${formatCurrency(fund.currentAmount)}</span>
                           </div>
                           <div class="detail-item">
@@ -574,8 +558,7 @@ function renderFundForm(fund = null) {
       initialDate: document.getElementById(`${formId}InitialDate`).value,
       investmentAmount: Number(document.getElementById(`${formId}Investment`).value) || 0,
       frequency: document.getElementById(`${formId}Frequency`).value,
-      notes: document.getElementById(`${formId}Notes`).value.trim(),
-      lastCalcDate: new Date().toISOString().split('T')[0]
+      notes: document.getElementById(`${formId}Notes`).value.trim()
     };
     
     // 计算当前持仓金额
