@@ -314,7 +314,12 @@ function renderFundList() {
   })).filter(group => group.funds.length > 0 || isAddingFund);
 
   window.toggleCategory = (categoryId) => {
-    expandedCategory = expandedCategory === categoryId ? null : categoryId;
+    const index = expandedCategory.indexOf(categoryId);
+    if (index > -1) {
+      expandedCategory.splice(index, 1);
+    } else {
+      expandedCategory.push(categoryId);
+    }
     render();
   };
 
@@ -471,10 +476,10 @@ function renderFundList() {
                 <span class="category-title">${category.name}</span>
                 <span class="fund-count">(${categoryFunds.length})</span>
                 <span style="margin-left: auto; transition: transform 0.3s ease;">
-                  <span class="icon ${expandedCategory === category.id ? 'icon-chevron-down' : 'icon-chevron-right'}"></span>
+                  <span class="icon ${expandedCategory.includes(category.id) ? 'icon-chevron-down' : 'icon-chevron-right'}"></span>
                 </span>
               </div>
-              ${expandedCategory === category.id ? `
+              ${expandedCategory.includes(category.id) ? `
                 <div class="fund-items">
                   ${categoryFunds.map(fund => {
                     if (editingFundId === fund.id) {
