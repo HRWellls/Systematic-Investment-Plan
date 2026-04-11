@@ -39,12 +39,21 @@ function calculateFundCompletionDate(fund) {
   // 如果没有定投计划，显示暂无定投计划
   if (fund.investmentAmount <= 0) return null;
   
-  const monthlyInvestment = fund.investmentAmount * frequencyMultiplier[fund.frequency];
-  if (monthlyInvestment <= 0) return null;
+  // 计算需要的工作日数量
+  const workdaysNeeded = Math.ceil(remainingAmount / fund.investmentAmount);
   
-  const monthsNeeded = remainingAmount / monthlyInvestment;
+  // 从当前日期开始，计算需要的工作日
   const completionDate = new Date();
-  completionDate.setMonth(completionDate.getMonth() + Math.ceil(monthsNeeded));
+  let workdaysCount = 0;
+  
+  while (workdaysCount < workdaysNeeded) {
+    completionDate.setDate(completionDate.getDate() + 1);
+    const dayOfWeek = completionDate.getDay();
+    if (dayOfWeek >= 1 && dayOfWeek <= 5) { // 周一到周五
+      workdaysCount++;
+    }
+  }
+  
   return completionDate.toLocaleDateString('zh-CN');
 }
 
