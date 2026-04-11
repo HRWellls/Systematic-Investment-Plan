@@ -518,17 +518,6 @@ function renderFundList() {
                             <span class="detail-value">${formatCurrency(fund.currentAmount)}</span>
                           </div>
                           <div class="detail-item">
-                            <span class="detail-label">建仓金额</span>
-                            <span class="detail-value">${formatCurrency(fund.initialAmount || 0)}</span>
-                          </div>
-                          <div class="detail-item">
-                            <span class="detail-label">建仓日期</span>
-                            <span class="detail-value">
-                              <span class="icon icon-calendar icon-sm"></span>
-                              ${fund.initialDate || '未设置'}
-                            </span>
-                          </div>
-                          <div class="detail-item">
                             <span class="detail-label">定投金额</span>
                             <span class="detail-value">${formatCurrency(fund.investmentAmount)} / ${frequencyLabels[fund.frequency]}</span>
                           </div>
@@ -633,7 +622,7 @@ function renderFundForm(fund = null) {
         <input type="number" id="${formId}Investment" placeholder="定投金额" class="input" value="${fundData.investmentAmount}">
       </div>
       <div class="form-row" style="gap: 1rem;">
-        <select id="${formId}Frequency" class="input" style="width: 300px;">
+        <select id="${formId}Frequency" class="input" style="width: 288px;">
           ${Object.entries(frequencyLabels).map(([value, label]) => `
             <option value="${value}" ${fundData.frequency === value ? 'selected' : ''}>${label}</option>
           `).join('')}
