@@ -413,6 +413,27 @@ function renderFundList() {
     showToast(`已删除 ${selectedCheckboxes.length} 只基金`, 'success');
   };
 
+  window.refreshFunds = () => {
+    // 重新计算所有基金的当前持仓金额
+    state.funds.forEach(fund => {
+      // 检查基金是否已完成（持仓金额 >= 目标金额）
+      const isCompleted = fund.currentAmount >= fund.targetAmount && fund.targetAmount > 0;
+      
+      // 对于已完成的基金，保持当前持仓金额不变
+      if (!isCompleted) {
+        const fundObject = {
+          ...fund,
+          currentAmount: 0 // 临时值，后续会通过calculateSimulatedCurrentAmount计算
+        };
+        fund.currentAmount = calculateSimulatedCurrentAmount(fundObject);
+      }
+    });
+    
+    saveData(state);
+    render();
+    showToast('已刷新基金持仓数据', 'success');
+  };
+
   return `
     <div class="fund-list">
       <div class="section-header">
@@ -437,6 +458,9 @@ function renderFundList() {
                 <span class="icon icon-trash"></span>
               </button>
             `}
+            <button class="btn-icon" onclick="refreshFunds()" title="刷新持仓数据">
+              <span class="icon icon-refresh"></span>
+            </button>
             <button class="btn-icon" onclick="sortFundsByCurrentAmount()" title="${isCurrentAmountDescending ? '按持仓金额降序排序' : '按持仓金额升序排序'}">
               <span class="icon icon-wallet"></span>
             </button>
@@ -805,7 +829,7 @@ function renderCategoryPieChart() {
               <div style="flex: 1; text-align: center;">
                 <span style="display: inline-block; text-align: left;">${formatCurrency(item.amount)}</span>
               </div>
-              <span style="color: var(--text-secondary);">${item.percentage.toFixed(1)}%</span>
+              <span>${item.percentage.toFixed(1)}%</span>
             </div>
           `).join('')}
         </div>
